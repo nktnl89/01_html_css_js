@@ -170,20 +170,29 @@ let findProductByName = function (form) {
 }
 let addProductToOrder = function (buttonAddElement) {
     let productElement = buttonAddElement.parentNode;
-    let selectedProduct = getProductById(productElement.getAttribute("id"));
-    increaseCounterBasket(1);
-    increaseBasketSum(selectedProduct);
-    createProductElement(selectedProduct, BASKET_PRODUCTS_ELEMENT);
-    BASKET_PRODUCTS_ELEMENT.querySelectorAll(".product").forEach(element => {
-        element.setAttribute("onClick", "function(true)");
-    });
+    try {
+        let selectedProduct = getProductById(productElement.getAttribute("id"));
+        increaseCounterBasket(1);
+        increaseBasketSum(selectedProduct);
+        createProductElement(selectedProduct, BASKET_PRODUCTS_ELEMENT);
+        BASKET_PRODUCTS_ELEMENT.querySelectorAll(".product").forEach(element => {
+            element.setAttribute("onClick", "function(true)");
+        });
+    } catch (e) {
+        alert(e.message);
+    }
+    
 }
 let deleteFromOrder = function (buttonDeleteElement) {
     let productElement = buttonDeleteElement.parentNode;
-    let selectedProduct = getProductById(productElement.getAttribute("id"));
-    increaseCounterBasket(-1);
-    decreaseBasketSum(selectedProduct);
-    BASKET_PRODUCTS_ELEMENT.removeChild(productElement);
+    try {
+        let selectedProduct = getProductById(productElement.getAttribute("id"));
+        increaseCounterBasket(-1);
+        decreaseBasketSum(selectedProduct);
+        BASKET_PRODUCTS_ELEMENT.removeChild(productElement);
+    }catch (e) {
+        alert(e.message);
+    }
     
 }
 let decreaseBasketSum = function (element) {
@@ -208,5 +217,9 @@ let calculatePercent = function (num, percent) {
     return Math.floor(num * (percent / 100));
 }
 let getProductById = function(productId){
-    return productArrayCategory.find(product => product.id == productId);
+    let selectedProduct = productArrayCategory.find(product => product.id == productId);
+    if (selectedProduct === undefined) {
+        throw new RangeError(`Продукт с id ${productId} не найден!`);
+    }
+    return selectedProduct;
 }
