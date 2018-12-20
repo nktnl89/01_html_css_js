@@ -18,59 +18,64 @@ const PRODUCTS_SUM_ELEMENT = document.querySelector(".productSum");
 const DISCOUNT_SUM_ELEMENT = document.querySelector(".discountSum");
 const TOTAL_SUM_ELEMENT = document.querySelector(".totalSum");
 const BASKET_PRODUCTS_ELEMENT = document.querySelector(".busketProducts");
+const DISCOUNT_PERCENT = 10;
 
 function Product(id, productPicture, productText, productPrice) {
     this.id = id;
     this.productPicture = productPicture;
     this.productText = productText;
     this.productPrice = productPrice;
-}
 
-let createProductElement = function (product, category) {
-    let newProductDiv = document.createElement("div");
-    newProductDiv.className = "product";
-    newProductDiv.setAttribute("id", product.id);
-    newProductDiv.setAttribute("onClick", "replyClick(this)");
+    let productClosure = this;
+    this.getProductPrice = function() {
+        return productClosure.productPrice;
+    }
+    this.createProductElement = function (parentNode) {
+        let newProductDiv = document.createElement("div");
+        newProductDiv.className = "product";
+        newProductDiv.setAttribute("id", productClosure.id);
+        newProductDiv.setAttribute("onClick", "replyClick(this)");
 
-    let newProductImg = document.createElement("div");
-    newProductImg.className = "productPicture";
-    let newImg = document.createElement("img");
-    newImg.setAttribute("src", product.productPicture)
-    newProductImg.appendChild(newImg);
+        let newProductImg = document.createElement("div");
+        newProductImg.className = "productPicture";
+        let newImg = document.createElement("img");
+        newImg.setAttribute("src", productClosure.productPicture)
+        newProductImg.appendChild(newImg);
 
-    let newProductText = document.createElement("div");
-    newProductText.className = "productText";
-    newProductText.innerText = product.productText;
+        let newProductText = document.createElement("div");
+        newProductText.className = "productText";
+        newProductText.innerText = productClosure.productText;
 
-    let newProductPrice = document.createElement("div");
-    newProductPrice.className = "productPrice";
-    newProductPrice.innerText = product.productPrice + " р.";
+        let newProductPrice = document.createElement("div");
+        newProductPrice.className = "productPrice";
+        newProductPrice.innerText = productClosure.productPrice + " р.";
 
-    let newProductAddProductToOrder = document.createElement("div");
-    newProductAddProductToOrder.className = "addProductToOrder";
-    newProductAddProductToOrder.setAttribute("onClick", "addProductToOrder(this)");
-    newProductAddProductToOrder.innerText = "В корзину";
+        let newProductAddProductToOrder = document.createElement("div");
+        newProductAddProductToOrder.className = "addProductToOrder";
+        newProductAddProductToOrder.setAttribute("onClick", "addProductToOrder(this)");
+        newProductAddProductToOrder.innerText = "В корзину";
 
-    let newProductDeleteFromOrder = document.createElement("div");
-    newProductDeleteFromOrder.className = "deleteFromOrder";
-    newProductDeleteFromOrder.setAttribute("onclick", "deleteFromOrder(this)");
-    newProductDeleteFromOrder.innerText = "[X]";
+        let newProductDeleteFromOrder = document.createElement("div");
+        newProductDeleteFromOrder.className = "deleteFromOrder";
+        newProductDeleteFromOrder.setAttribute("onclick", "deleteFromOrder(this)");
+        newProductDeleteFromOrder.innerText = "[X]";
 
-    newProductDiv.appendChild(newProductImg);
-    newProductDiv.appendChild(newProductText);
-    newProductDiv.appendChild(newProductPrice);
-    newProductDiv.appendChild(newProductAddProductToOrder);
-    newProductDiv.appendChild(newProductDeleteFromOrder);
+        newProductDiv.appendChild(newProductImg);
+        newProductDiv.appendChild(newProductText);
+        newProductDiv.appendChild(newProductPrice);
+        newProductDiv.appendChild(newProductAddProductToOrder);
+        newProductDiv.appendChild(newProductDeleteFromOrder);
 
-    category.appendChild(newProductDiv);
+        parentNode.appendChild(newProductDiv);
+    }
 }
 let createProducts = function () {
     let counter = 0;
     productArrayCategory.forEach(element => {
         if (counter < 8) {
-            createProductElement(element, document.getElementById("category1"));
+            element.createProductElement(document.getElementById("category1"));
         } else {
-            createProductElement(element, document.getElementById("category2"));
+            element.createProductElement(document.getElementById("category2"));
         }
         counter++;
     });
@@ -163,7 +168,7 @@ let findProductByName = function (form) {
     });
     productArrayCategory.forEach(element => {
         if (element.productText.toLowerCase().indexOf(searchQuery) > -1) {
-            createProductElement(element, foundedProductsElement);
+            element.createProductElement(foundedProductsElement);
         }
     });
     setVisibilityProductChildren(form.parentNode, false);
@@ -174,7 +179,7 @@ let addProductToOrder = function (buttonAddElement) {
         let selectedProduct = getProductById(productElement.getAttribute("id"));
         increaseCounterBasket(1);
         increaseBasketSum(selectedProduct);
-        createProductElement(selectedProduct, BASKET_PRODUCTS_ELEMENT);
+        selectedProduct.createProductElement(BASKET_PRODUCTS_ELEMENT);
         BASKET_PRODUCTS_ELEMENT.querySelectorAll(".product").forEach(element => {
             element.setAttribute("onClick", "function(true)");
         });
@@ -196,13 +201,13 @@ let deleteFromOrder = function (buttonDeleteElement) {
     
 }
 let decreaseBasketSum = function (element) {
-    PRODUCTS_SUM_ELEMENT.innerText = Number(PRODUCTS_SUM_ELEMENT.innerText) - element.productPrice;
-    DISCOUNT_SUM_ELEMENT.innerText = Number(DISCOUNT_SUM_ELEMENT.innerText) - calculatePercent(element.productPrice, 10);
+    PRODUCTS_SUM_ELEMENT.innerText = Number(PRODUCTS_SUM_ELEMENT.innerText) - element.getProductPrice();
+    DISCOUNT_SUM_ELEMENT.innerText = Number(DISCOUNT_SUM_ELEMENT.innerText) - calculatePercent(element.getProductPrice(), DISCOUNT_PERCENT);
     TOTAL_SUM_ELEMENT.innerText = PRODUCTS_SUM_ELEMENT.innerText - DISCOUNT_SUM_ELEMENT.innerText;
 }
 let increaseBasketSum = function (product) {
     PRODUCTS_SUM_ELEMENT.innerText = Number(PRODUCTS_SUM_ELEMENT.innerText) + product.productPrice;
-    DISCOUNT_SUM_ELEMENT.innerText = Number(DISCOUNT_SUM_ELEMENT.innerText)+calculatePercent(Number(product.productPrice), 10);
+    DISCOUNT_SUM_ELEMENT.innerText = Number(DISCOUNT_SUM_ELEMENT.innerText)+calculatePercent(Number(product.productPrice), DISCOUNT_PERCENT);
     TOTAL_SUM_ELEMENT.innerText = PRODUCTS_SUM_ELEMENT.innerText - DISCOUNT_SUM_ELEMENT.innerText;
 }
 let increaseCounterBasket = function (count) {
